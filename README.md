@@ -9,7 +9,7 @@
 - Added microservice leveraging RabbitMQ
 - Added JWT token
 
-  <img src = "https://github.com/mariocasila/nest-protocol-buffer-grpc-rabbitmq/tree/main/images/diagram.png">
+  <img src = "./images/diagram.png">
 ## Stay in touch
 
 - Author - [Mario Casila]
