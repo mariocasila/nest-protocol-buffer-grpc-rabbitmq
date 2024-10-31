@@ -1,0 +1,85 @@
+services:
+  #generic:
+    #build:
+      #context: proto
+      #dockerfile: .Dockerfile
+  mongo:
+    build:
+      context: ./mongodb_replica
+      args:
+        MONGO_VERSION: 4
+    environment:
+      MONGODB_USERNAME : grpc
+      MONGODB_PASSWORD : grpc
+      MONGODB_DATABASE : grpc-dev
+
+      MONGO_REPLICA_HOST: mongo
+      MONGO_REPLICA_PORT: 27018
+      # Use "mongo" instead of "mongosh" before v5.0
+      MONGO_COMMAND: 'mongo'
+    ports:
+      - '27018:27018'
+    restart: unless-stopped
+    healthcheck:
+      # Use "mongo" instead of "mongosh" before v5.0
+      test: ['CMD', 'mongo', 'admin', '--port', '27018', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    networks:
+     - self
+     
+  redis:
+    image: bitnami/redis:latest
+    tty: true
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_USERNAME=user
+      - REDIS_PASSWORD=password
+      - DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+    networks:
+      - self      
+
+  rabbitmq:
+    image: "rabbitmq:management-alpine"
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"  # AMQP
+      - "15672:15672"  # RabbitMQ Management UI
+    networks:
+      - self      
+
+  micro_account:
+    build:
+      context: .
+      dockerfile: ./micro_account/.Dockerfile
+    ports:
+      - "5000:5000"  # AMQP
+    #volumes:
+      #- ./micro_account:/app
+      #- ./proto:/app/proto
+      #- ./prisma:/app/prisma
+      #- app/node_modules
+    #env_file:
+      #- ./micro_account/.env      
+    #environment: 
+     #DATABASE_URL: ${DATABASE_URL}
+    depends_on: 
+      - mongo
+      - redis
+      - rabbitmq
+    networks:
+      - self      
+
+volumes:
+  redis_data:
+    driver: local
+  mongodb_data:  
+networks:
+  self:  

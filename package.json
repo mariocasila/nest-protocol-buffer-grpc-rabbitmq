@@ -1,0 +1,20 @@
+{
+  "name": "nest-protocol-buffer-grpc-rabbitmq",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build:proto": "cd proto && npm install && sh ./compile.proto.sh",
+    "gateway:dev": "npm run build:proto && cd gateway  && rm -rf proto && cp -r -f ../proto/ proto/ && rm -rf proto/node_modules && npm run start:dev",
+    "account:dev": "npm run build:proto && cd micro_account && rm -rf proto && cp -r -f ../proto/ proto/ && rm -rf proto/node_modules && rm -rf prisma && cp -r -f ../prisma/ prisma/ && npx prisma generate && npm run start:dev",
+    "project:dev": "npm run build:proto && cd micro_project && rm -rf proto && cp -r -f ../proto/ proto/ && rm -rf proto/node_modules && rm -rf prisma && cp -r -f ../prisma/ prisma/ && npx prisma generate && npm run start:dev"
+  },
+  "devDependencies": {
+    "prisma": "^5.21.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.21.1"
+  }
+}
